@@ -2,6 +2,8 @@ import tkinter as tk
 from tkinter import *
 from tkinter import ttk 
 
+# TODO comment code file into sections
+
 root = Tk()
 root.geometry("750x500")
 frame = ttk.Frame(root, padding=10)
@@ -32,6 +34,10 @@ colour_group_matchings = {
     "Purple": words_group_matchings["Things that are pushed metaphorically"]
 }
 
+# TODO work on implementing logic for wrong groupings 
+# - all words should be deselected, and mistakes remaining lives should change colour 
+# - if all lives have been used, end of games and the results are shown 
+# TODO write out and visualise logic
 def select_words(label, word):
     if word not in selected_words:
         label.config(bg="grey")
@@ -66,7 +72,7 @@ def check_word_group():
 
 # TODO implement correct grouping logic and animation
 # - organise into one column 
-# - display both the colour of the group and the title
+# - display the title of the group
 # NOTE: this may be beyond the abilities of tkinter, may need to move to JavaScript frontend and keep logic in backend
 def create_row(sorted_words):
     print(colour_group_matchings.items())
@@ -98,10 +104,21 @@ for row in range(len(board)):
             lambda event, label=word_tile, word=board[row][column]: select_words(label, word)
         )
 
-# TODO continue adding features to the people tool bar including: 
-# - mistakes remaining: taskbar-like UI feature should be added showing the number of lives remaining once an incorrect grouping is submitted
+# TODO make the presentation of UI better 
 mistakes_remaining_text = tk.Label(frame, text="Mistakes Remaining: ", fg="white")
 mistakes_remaining_text.grid(row=5, column=0)
+
+canvas = tk.Canvas(frame, width=140, height=40)
+canvas.grid(row=5, column=1)
+
+mistake_circles = []
+for i in range(4):
+    x1 = 10 + (i * 30)
+    y1 = 10
+    x2 = x1 + 20
+    y2 = y1 + 20
+
+    canvas.create_oval(x1, y1, x2, y2, fill="white", outline="white", width=1)
 
 # TODO add functionality for shuffling words in grid 
 shuffle_button = ttk.Button(frame, text="Shuffle")
