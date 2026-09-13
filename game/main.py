@@ -8,24 +8,31 @@ frame = ttk.Frame(root, padding=10)
 frame.pack()
 
 selected_words = []
+word_labels = {}
+
 # TODO perhaps refactor the board so it's a class, not a list
-# TODO change so the words are in a random order on the board
 board = [
-    ["Band", "Florist", "Photographer", "Planner"],
-    ["Absorb", "Digest", "Process", "Take-in"],
-    ["Exercise", "Journal", "Meditate", "Unplug"],
-    ["Agenda", "Envelope", "Limits", "Luck"]
+    ["Agenda", "Absorb", "Photographer", "Unplug"],
+    ["Digest", "Planner", "Envelope", "Meditate"],
+    ["Limits", "Process", "Band", "Journal"],
+    ["Florist", "Luck", "Take-in", "Exercise"]
 ]
 
 words_group_matchings = {
-    "People hired for an event": board[0],
-    "Internalise": board[1],
-    "Ways to practice self-care": board[2],
-    "Things that are pushed metaphorically": board[3]
+    "People hired for an event": ["Band", "Florist", "Photographer", "Planner"],
+    "Internalise": ["Absorb", "Digest", "Process", "Take-in"],
+    "Ways to practice self-care": ["Exercise", "Journal", "Meditate", "Unplug"],
+    "Things that are pushed metaphorically": ["Agenda", "Envelope", "Limits", "Luck"]
+}
+
+colour_group_matchings = {
+    "Yellow": words_group_matchings["People hired for an event"], 
+    "Green": words_group_matchings["Internalise"], 
+    "Blue": words_group_matchings["Ways to practice self-care"], 
+    "Purple": words_group_matchings["Things that are pushed metaphorically"]
 }
 
 def select_words(label, word):
-    # TODO add toggling logic (if white, turn darker and vice versa)
     if word not in selected_words:
         label.config(bg="grey")
         selected_words.append(word)
@@ -38,48 +45,53 @@ def select_words(label, word):
     else:
         submit_button.config(state="disabled")
 
-# TODO fix below function - will not work since not using label configuration
-# can use a dictionary and map each word to a word_tile, making it easier for selection/deselection
-'''def deselect_words():
+def deselect_words():
     for word in selected_words:
-        word.config(bg="white")
+        word_labels[word].config(bg="white")
 
-    selected_words.clear()'''
+    selected_words.clear()
 
 def check_word_group(): 
-    ''' Note that connections groups are always '''
+    ''' Note that connections groups are always listed in alphabetical order, hence why this logic can be used '''
     sorted_words = sorted(selected_words)
 
     for group in words_group_matchings.values():
         if sorted_words == sorted(group):
+            deselect_words()
             create_row(sorted_words)
             return
 
     print("Incorrect Grouping")
-    # deselect_words()
+    deselect_words()
 
 # TODO implement correct grouping logic and animation
 # - organise into one column 
-# - change the colour of the column 
 # - display both the colour of the group and the title
 # NOTE: this may be beyond the abilities of tkinter, may need to move to JavaScript frontend and keep logic in backend
 def create_row(sorted_words):
+    print(colour_group_matchings.items())
+    for colour, groups in colour_group_matchings.items(): 
+        if sorted_words == sorted(groups):
+            for word in sorted_words:
+                print(colour)
+                word_labels[word].config(bg=colour)
+            
     print("Correct Grouping")
 
 for row in range(len(board)):
     for column in range(len(board)):
+        word = board[row][column]
         word_frame = ttk.Frame(frame, width=100, height=100)
         word_frame.grid(row=row, column=column, padx=3, pady=3)
         word_frame.pack_propagate(False)
 
-        word_tile = tk.Label(word_frame, text=board[row][column], bg="#e6e6e6", fg="black")
-        word_tile.place(x=0,
-            y=0,
-            relwidth=1,
-            relheight=1)
+        word_tile = tk.Label(word_frame, text=board[row][column], bg="white", fg="black")
+        word_tile.place(x=0, y=0, relwidth=1, relheight=1)
 
         word_frame.rowconfigure(0, weight=1)
         word_frame.columnconfigure(0, weight=1)
+
+        word_labels[word] = word_tile
 
         word_tile.bind(
             "<Button-1>",
@@ -87,11 +99,19 @@ for row in range(len(board)):
         )
 
 # TODO continue adding features to the people tool bar including: 
-# - shuffle button: makes the board shuffle around the words 
-# - clear button: deselects all buttons 
 # - mistakes remaining: taskbar-like UI feature should be added showing the number of lives remaining once an incorrect grouping is submitted
+mistakes_remaining_text = tk.Label(frame, text="Mistakes Remaining: ", fg="white")
+mistakes_remaining_text.grid(row=5, column=0)
+
+# TODO add functionality for shuffling words in grid 
+shuffle_button = ttk.Button(frame, text="Shuffle")
+shuffle_button.grid(row=6, column=1)
+
+deselect_all_button = ttk.Button(frame, text="Deselect All", command=deselect_words)
+deselect_all_button.grid(row=6, column=2)
+
 submit_button = ttk.Button(frame, text="Submit", command=check_word_group)
-submit_button.grid(row=5, column=2)
+submit_button.grid(row=6, column=3)
 submit_button.config(state="disabled")
 
 root.mainloop()
